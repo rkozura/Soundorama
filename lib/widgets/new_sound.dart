@@ -1,19 +1,28 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_complete_guide/audio/recorder.dart';
 import 'package:flutter_complete_guide/audio/speaker.dart';
+import 'package:image_picker/image_picker.dart';
 import './microphone.dart';
-import '../io/sound_file_util.dart';
 
 class NewSound extends StatefulWidget {
   final Function addSoundCallback;
   final Function cancelAddSoundCallback;
   final String soundFileLocation;
+  final bool existingSound;
+  final String name;
 
-  NewSound(this.soundFileLocation, this.addSoundCallback,
-      this.cancelAddSoundCallback);
+  NewSound({
+    this.soundFileLocation,
+    this.addSoundCallback,
+    this.cancelAddSoundCallback,
+    this.existingSound = false,
+    this.name = '',
+  });
 
   @override
-  _NewSoundState createState() => _NewSoundState();
+  _NewSoundState createState() => _NewSoundState(name);
 }
 
 class _NewSoundState extends State<NewSound> {
@@ -22,6 +31,11 @@ class _NewSoundState extends State<NewSound> {
   bool hasSound = false;
   bool isPlayingAudio = false;
   Recorder recorder;
+  File _image;
+
+  _NewSoundState(String name) {
+    soundNameController.text = name;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +57,21 @@ class _NewSoundState extends State<NewSound> {
                 Icons.play_arrow,
                 size: 50,
               ),
-              onPressed: hasSound ? _stopThenPlayAudio : null,
+              onPressed:
+                  hasSound || widget.existingSound ? _stopThenPlayAudio : null,
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            _image != null ? Image.file(_image) : Container(),
+            IconButton(
+              icon: Icon(
+                Icons.add_a_photo,
+                size: 50,
+              ),
+              onPressed: getImage,
             ),
           ],
         ),
@@ -56,7 +84,8 @@ class _NewSoundState extends State<NewSound> {
                 Icons.check,
                 size: 50,
               ),
-              onPressed: hasSound ? _confirmSound : null,
+              onPressed:
+                  hasSound || widget.existingSound ? _confirmSound : null,
             ),
             IconButton(
               color: Colors.red,
@@ -75,7 +104,8 @@ class _NewSoundState extends State<NewSound> {
   void _confirmSound() {
     widget.addSoundCallback(
         buttonText: soundNameController.text,
-        pathToSound: widget.soundFileLocation);
+        pathToSound: widget.soundFileLocation,
+        imageLocation: _image.path);
   }
 
   void _stopThenPlayAudio() async {
@@ -91,5 +121,17 @@ class _NewSoundState extends State<NewSound> {
 
   void _recordedAudioCallback() {
     setState(() => hasSound = true);
+  }
+
+  Future getImage() async {
+    var image = await ImagePicker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 80,
+      maxHeight: 80,
+    );
+
+    setState(() {
+      _image = image;
+    });
   }
 }
