@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_complete_guide/model/delete.dart';
@@ -8,7 +10,7 @@ class PlaySoundButton extends StatefulWidget {
   final String pathToSound;
   final Function deleteSoundCallback;
   final Function editSoundCallback;
-  final String imageLocation;
+  final File imageLocation;
 
   PlaySoundButton(
       {@required this.buttonText,
@@ -26,28 +28,22 @@ class _PlaySoundButtonState extends State<PlaySoundButton> {
 
   @override
   Widget build(BuildContext context) {
-    final delete = Provider.of<Delete>(context);
     return GestureDetector(
       child: GridTile(
         child: ConstrainedBox(
           constraints: BoxConstraints.expand(),
           child: widget.imageLocation == null
               ? Text(widget.buttonText)
-              : Ink.image(
-                  image: AssetImage(widget.imageLocation),
-                  fit: BoxFit.fill,
-                  child: InkWell(
-                    onTap: null,
-                  ),
-                ),
+              : Image.file(widget.imageLocation),
         ),
       ),
       onLongPress: _editSound,
-      onTap: () => _onTapped(delete),
+      onTap: () => _onTapped(),
     );
   }
 
-  void _onTapped(Delete delete) {
+  void _onTapped() {
+    final delete = Provider.of<Delete>(context);
     if (delete.getDeleting()) {
       _showDeleteConfirmationModal();
     } else if (delete.getEditing()) {

@@ -128,6 +128,7 @@ class _NewSoundState extends State<NewSound> {
   Future getImage() async {
     var image = await ImagePicker.pickImage(
       source: ImageSource.gallery,
+      imageQuality: 50,
       maxWidth: 80,
       maxHeight: 80,
     );

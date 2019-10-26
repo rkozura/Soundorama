@@ -128,7 +128,7 @@ class _SoundBoardState extends State<SoundBoard> {
           pathToSound: pathToSound,
           deleteSoundCallback: _deleteSound,
           editSoundCallback: _editSound,
-          imageLocation: image == null ? null : image.path
+          imageLocation: image == null ? null : image
         ),
       );
     });
