@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../audio/recorder.dart';
@@ -19,6 +21,8 @@ class _MicrophoneState extends State<Microphone> {
   Recorder _recorder;
   Future _recordingAudio;
   bool _isRecording = false;
+  final maxRecordingSeconds = const Duration(seconds: 5);
+  Timer recordingTimer;
 
   _MicrophoneState(String fileAbsolutePath) {
     _recorder = RecorderFlutterSoundsAdapter(fileAbsolutePath);
@@ -57,7 +61,10 @@ class _MicrophoneState extends State<Microphone> {
     if (!_isRecording) {
       setState(() {
         _recordingAudio = _recorder.recordAudio().then((_) {
-          setState(() => _isRecording = true);
+          setState(() {
+            _isRecording = true;
+            recordingTimer = Timer(maxRecordingSeconds, () => _endRecordAudio());
+          });
         });
       });
     }
@@ -69,6 +76,10 @@ class _MicrophoneState extends State<Microphone> {
         _recorder.stopRecordAudio().then((_) {
           widget.recordedAudioCallback();
           setState(() {
+            if (recordingTimer != null) {
+              recordingTimer.cancel();
+              recordingTimer = null;
+            }
             _recordingAudio = null;
             _isRecording = false;
           });
