@@ -12,6 +12,7 @@ class NewSound extends StatefulWidget {
   final String soundFileLocation;
   final bool existingSound;
   final String name;
+  final File image;
 
   NewSound({
     this.soundFileLocation,
@@ -19,10 +20,11 @@ class NewSound extends StatefulWidget {
     this.cancelAddSoundCallback,
     this.existingSound = false,
     this.name = '',
+    this.image,
   });
 
   @override
-  _NewSoundState createState() => _NewSoundState(name);
+  _NewSoundState createState() => _NewSoundState(name, image: image);
 }
 
 class _NewSoundState extends State<NewSound> {
@@ -33,8 +35,9 @@ class _NewSoundState extends State<NewSound> {
   Recorder recorder;
   File _image;
 
-  _NewSoundState(String name) {
+  _NewSoundState(String name, {File image}) {
     soundNameController.text = name;
+    _image = image;
   }
 
   @override

@@ -151,6 +151,7 @@ class _SoundBoardState extends State<SoundBoard> {
           cancelAddSoundCallback: _cancelAddSoundCallback,
           existingSound: true,
           name: playSoundButton.buttonText,
+          image: playSoundButton.imageLocation
         );
       },
       context: context,
