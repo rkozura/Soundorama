@@ -29,21 +29,17 @@ class _PlaySoundButtonState extends State<PlaySoundButton> {
     final delete = Provider.of<Delete>(context);
     return GestureDetector(
       child: GridTile(
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).buttonColor,
-            image: widget.imageLocation == null
-                ? null
-                : DecorationImage(
-                    image: AssetImage(widget.imageLocation),
-                    alignment: Alignment.topLeft,
-                    repeat: ImageRepeat.noRepeat,
-                    matchTextDirection: true,
+        child: ConstrainedBox(
+          constraints: BoxConstraints.expand(),
+          child: widget.imageLocation == null
+              ? Text(widget.buttonText)
+              : Ink.image(
+                  image: AssetImage(widget.imageLocation),
+                  fit: BoxFit.fill,
+                  child: InkWell(
+                    onTap: null,
                   ),
-            // borderRadius: BorderRadius.circular(50.0),
-          ),
-          child: Text(widget.buttonText),
-          alignment: Alignment.center,
+                ),
         ),
       ),
       onLongPress: _editSound,

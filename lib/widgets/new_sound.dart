@@ -105,7 +105,7 @@ class _NewSoundState extends State<NewSound> {
     widget.addSoundCallback(
         buttonText: soundNameController.text,
         pathToSound: widget.soundFileLocation,
-        imageLocation: _image.path);
+        image: _image);
   }
 
   void _stopThenPlayAudio() async {
@@ -113,9 +113,11 @@ class _NewSoundState extends State<NewSound> {
       isPlayingAudio = true;
     });
     speaker.playLocalAudio(widget.soundFileLocation).then((_) {
-      setState(() {
-        isPlayingAudio = false;
-      });
+      if (this.mounted) {
+        setState(() {
+          isPlayingAudio = false;
+        });
+      }
     });
   }
 

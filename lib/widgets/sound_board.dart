@@ -114,7 +114,7 @@ class _SoundBoardState extends State<SoundBoard> {
     );
   }
 
-  void _addSoundCallback({@required buttonText, @required pathToSound, imageLocation}) {
+  void _addSoundCallback({@required buttonText, @required pathToSound, image}) {
     setState(() {
       for (PlaySoundButton button in playSoundButtons) {
         if (button.pathToSound == pathToSound) {
@@ -128,7 +128,7 @@ class _SoundBoardState extends State<SoundBoard> {
           pathToSound: pathToSound,
           deleteSoundCallback: _deleteSound,
           editSoundCallback: _editSound,
-          imageLocation: imageLocation
+          imageLocation: image == null ? null : image.path
         ),
       );
     });
