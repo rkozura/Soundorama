@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../audio/speaker.dart';
 
 class PlaySoundButton extends StatefulWidget {
+  final String id;
   final String name;
   final String soundRecordedPath;
   final String soundFilePath;
@@ -18,6 +19,7 @@ class PlaySoundButton extends StatefulWidget {
   final SoundType soundType;
 
   PlaySoundButton({
+    this.id,
     this.name,
     this.soundRecordedPath,
     this.soundFilePath,

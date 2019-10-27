@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_complete_guide/model/sound_type.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_complete_guide/io/sound_file_util.dart';
 import 'package:flutter_complete_guide/widgets/new_sound.dart';
+import 'package:uuid/uuid.dart';
 
 import 'play_sound_button.dart';
 import '../model/delete.dart';
@@ -13,14 +16,8 @@ class SoundBoard extends StatefulWidget {
 }
 
 class _SoundBoardState extends State<SoundBoard> {
-  List<Map<String, String>> test = [
-    {
-      "name": "hello",
-      "soundPath": "path",
-      "imagePath": "imagePath",
-    },
-  ];
-  List<PlaySoundButton> playSoundButtons = [];
+  List<Map<String, String>> playSoundButtons = [];
+  var uuid = Uuid();
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +90,7 @@ class _SoundBoardState extends State<SoundBoard> {
     showModalBottomSheet(
       builder: (_) {
         return NewSound(
+          id: uuid.v4(),
           soundFileLocation: soundFileLocation,
           addSoundCallback: _addSoundCallback,
           cancelAddSoundCallback: _cancelAddSoundCallback,
@@ -111,7 +109,22 @@ class _SoundBoardState extends State<SoundBoard> {
     return GridView.builder(
       itemCount: playSoundButtons.length,
       itemBuilder: (context, position) {
-        return playSoundButtons[position];
+        List<PlaySoundButton> buttons = playSoundButtons.map((map) {
+          return PlaySoundButton(
+            id: map["id"],
+            name: map["name"],
+            soundRecordedPath: map["soundRecordedPath"],
+            soundFilePath: map["soundFilePath"],
+            soundType: SoundType.values
+                .firstWhere((e) => e.toString() == map["soundType"]),
+            deleteSoundCallback: _deleteSound,
+            editSoundCallback: _editSound,
+            imageLocation: map["imageLocation"] != null
+                ? File(map["imageLocation"])
+                : null,
+          );
+        }).toList();
+        return buttons[position];
       },
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
@@ -123,30 +136,22 @@ class _SoundBoardState extends State<SoundBoard> {
   }
 
   void _addSoundCallback({
+    id,
     name,
     soundRecordedPath,
     soundFilePath,
     @required SoundType soundType,
-    image,
+    File image,
   }) {
     setState(() {
-      // for (PlaySoundButton button in playSoundButtons) {
-      //   if (button.pathToSound == pathToSound) {
-      //     playSoundButtons.remove(button);
-      //     break;
-      //   }
-      // }
-      playSoundButtons.add(
-        PlaySoundButton(
-          name: name,
-          soundRecordedPath: soundRecordedPath,
-          soundFilePath: soundFilePath,
-          soundType: soundType,
-          deleteSoundCallback: _deleteSound,
-          editSoundCallback: _editSound,
-          imageLocation: image,
-        ),
-      );
+      playSoundButtons.add({
+        "id": id,
+        "name": name,
+        "soundRecordedPath": soundRecordedPath,
+        "soundFilePath": soundFilePath,
+        "soundType": soundType.toString(),
+        "imageLocation": image != null ? image.path : null
+      });
     });
     _hideDialogAndKeepSound();
   }
@@ -161,6 +166,7 @@ class _SoundBoardState extends State<SoundBoard> {
     showModalBottomSheet(
       builder: (_) {
         return NewSound(
+          id: playSoundButton.id,
           soundFileLocation: playSoundButton.soundRecordedPath,
           addSoundCallback: _addSoundCallback,
           cancelAddSoundCallback: _cancelAddSoundCallback,
@@ -174,8 +180,34 @@ class _SoundBoardState extends State<SoundBoard> {
     );
   }
 
-  void _editSoundCallback() {
-    print('here');
+  void _editSoundCallback({
+    id,
+    name,
+    soundRecordedPath,
+    soundFilePath,
+    soundType,
+    File image,
+  }) {
+    Map<String, String> result;
+
+    int index = playSoundButtons.indexWhere((element) {
+      return element["id"] == id;
+    });
+
+    if (index >= 0) {
+      result = playSoundButtons[index];
+      setState(() {
+        result["name"] = name;
+        result["soundRecordedPath"] = soundRecordedPath;
+        result["soundFilePath"] = soundFilePath;
+        result["soundType"] = soundType.toString();
+        if (image != null) {
+          result["imageLocation"] = image.path;
+        }
+      });
+    }
+
+    _cancelAddSoundCallback();
   }
 
   void _cancelAddSoundCallback() {

@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import './microphone.dart';
 
 class NewSound extends StatefulWidget {
+  final String id;
   final Function addSoundCallback;
   final Function cancelAddSoundCallback;
   final Function editSoundCallback;
@@ -18,6 +19,7 @@ class NewSound extends StatefulWidget {
   final SoundType soundType;
 
   NewSound({
+    this.id,
     this.soundFileLocation,
     this.addSoundCallback,
     this.cancelAddSoundCallback,
@@ -127,9 +129,17 @@ class _NewSoundState extends State<NewSound> {
 
   void _confirmSound() {
     if (preExistingSound) {
-      widget.editSoundCallback();
+      widget.editSoundCallback(
+        id: widget.id,
+        name: soundNameController.text,
+        soundRecordedPath: _getSoundPath(),
+        soundFilePath: widget.soundFileLocation,
+        soundType: _soundType,
+        image: _image,
+      );
     } else {
       widget.addSoundCallback(
+        id: widget.id,
         name: soundNameController.text,
         soundRecordedPath: _getSoundPath(),
         soundFilePath: widget.soundFileLocation,
@@ -171,7 +181,7 @@ class _NewSoundState extends State<NewSound> {
   }
 
   Future getImage() async {
-    var image = await ImagePicker.pickImage(
+    File image = await ImagePicker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 50,
       maxWidth: 80,
