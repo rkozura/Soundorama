@@ -1,23 +1,31 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_complete_guide/io/sound_file_util.dart';
 import 'package:flutter_complete_guide/model/delete.dart';
+import 'package:flutter_complete_guide/model/sound_type.dart';
+import 'package:provider/provider.dart';
+
 import '../audio/speaker.dart';
 
 class PlaySoundButton extends StatefulWidget {
-  final String buttonText;
-  final String pathToSound;
+  final String name;
+  final String soundRecordedPath;
+  final String soundFilePath;
   final Function deleteSoundCallback;
   final Function editSoundCallback;
   final File imageLocation;
+  final SoundType soundType;
 
-  PlaySoundButton(
-      {@required this.buttonText,
-      @required this.pathToSound,
-      this.deleteSoundCallback,
-      this.editSoundCallback,
-      this.imageLocation});
+  PlaySoundButton({
+    this.name,
+    this.soundRecordedPath,
+    this.soundFilePath,
+    this.soundType,
+    this.deleteSoundCallback,
+    this.editSoundCallback,
+    this.imageLocation,
+  });
 
   @override
   _PlaySoundButtonState createState() => _PlaySoundButtonState();
@@ -33,13 +41,19 @@ class _PlaySoundButtonState extends State<PlaySoundButton> {
         child: ConstrainedBox(
           constraints: BoxConstraints.expand(),
           child: widget.imageLocation == null
-              ? Text(widget.buttonText)
+              ? Text(widget.name)
               : Image.file(widget.imageLocation),
         ),
       ),
       onLongPress: _editSound,
       onTap: () => _onTapped(),
     );
+  }
+
+  @override
+  void dispose() {
+    SoundFileUtil.deleteSoundFile(widget.soundRecordedPath);
+    super.dispose();
   }
 
   void _onTapped() {
@@ -54,7 +68,14 @@ class _PlaySoundButtonState extends State<PlaySoundButton> {
   }
 
   void _playSound() {
-    speaker.stopThenPlayLocalAudio(widget.pathToSound);
+    String soundPath;
+    if (widget.soundType == SoundType.File) {
+      soundPath = widget.soundRecordedPath;
+    } else {
+      soundPath = widget.soundFilePath;
+    }
+
+    speaker.stopThenPlayLocalAudio(soundPath);
   }
 
   void _editSound() {
@@ -71,7 +92,7 @@ class _PlaySoundButtonState extends State<PlaySoundButton> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete "${widget.buttonText}"?'),
+          title: Text('Delete "${widget.name}"?'),
           actions: <Widget>[
             FlatButton(
               child: Text('Yes'),

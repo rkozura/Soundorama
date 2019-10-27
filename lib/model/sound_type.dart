@@ -1,0 +1,4 @@
+enum SoundType {
+  Recorded,
+  File
+}

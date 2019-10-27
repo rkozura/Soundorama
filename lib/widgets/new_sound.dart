@@ -4,43 +4,52 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_complete_guide/audio/recorder.dart';
 import 'package:flutter_complete_guide/audio/speaker.dart';
+import 'package:flutter_complete_guide/model/sound_type.dart';
 import 'package:image_picker/image_picker.dart';
 import './microphone.dart';
 
 class NewSound extends StatefulWidget {
   final Function addSoundCallback;
   final Function cancelAddSoundCallback;
+  final Function editSoundCallback;
   final String soundFileLocation;
-  final bool existingSound;
   final String name;
   final File image;
+  final SoundType soundType;
 
   NewSound({
     this.soundFileLocation,
     this.addSoundCallback,
     this.cancelAddSoundCallback,
-    this.existingSound = false,
+    this.editSoundCallback,
     this.name = '',
     this.image,
+    this.soundType,
   });
 
   @override
-  _NewSoundState createState() => _NewSoundState(name, image: image);
+  _NewSoundState createState() => _NewSoundState(
+        name,
+        image: image,
+        soundType: soundType,
+      );
 }
 
 class _NewSoundState extends State<NewSound> {
   final Speaker speaker = Speaker();
-  final soundNameController = TextEditingController();
-  bool hasRecordedSound = false;
-  bool hasFileSound = false;
   bool isPlayingAudio = false;
+  bool preExistingSound;
+  final soundNameController = TextEditingController();
+  SoundType _soundType;
   Recorder recorder;
   File _image;
   String _soundFilePath;
 
-  _NewSoundState(String name, {File image}) {
+  _NewSoundState(String name, {File image, SoundType soundType}) {
     soundNameController.text = name;
     _image = image;
+    _soundType = soundType;
+    preExistingSound = soundType != null;
   }
 
   @override
@@ -63,9 +72,7 @@ class _NewSoundState extends State<NewSound> {
                 Icons.play_arrow,
                 size: 50,
               ),
-              onPressed: hasRecordedSound || widget.existingSound || hasFileSound
-                  ? _stopThenPlayAudio
-                  : null,
+              onPressed: hasSound() ? _stopThenPlayAudio : null,
             ),
           ],
         ),
@@ -98,10 +105,7 @@ class _NewSoundState extends State<NewSound> {
                 Icons.check,
                 size: 50,
               ),
-              onPressed:
-                  hasRecordedSound || widget.existingSound || hasFileSound
-                      ? _confirmSound
-                      : null,
+              onPressed: hasSound() ? _confirmSound : null,
             ),
             IconButton(
               color: Colors.red,
@@ -117,11 +121,22 @@ class _NewSoundState extends State<NewSound> {
     );
   }
 
+  bool hasSound() {
+    return _soundType != null;
+  }
+
   void _confirmSound() {
-    widget.addSoundCallback(
-        buttonText: soundNameController.text,
-        pathToSound: _getSoundPath(),
-        image: _image);
+    if (preExistingSound) {
+      widget.editSoundCallback();
+    } else {
+      widget.addSoundCallback(
+        name: soundNameController.text,
+        soundRecordedPath: _getSoundPath(),
+        soundFilePath: widget.soundFileLocation,
+        soundType: _soundType,
+        image: _image,
+      );
+    }
   }
 
   void _stopThenPlayAudio() async {
@@ -140,9 +155,9 @@ class _NewSoundState extends State<NewSound> {
 
   String _getSoundPath() {
     String soundPath;
-    if (hasRecordedSound) {
+    if (_soundType == SoundType.Recorded) {
       soundPath = widget.soundFileLocation;
-    } else if (hasFileSound) {
+    } else if (_soundType == SoundType.File) {
       soundPath = _soundFilePath;
     }
 
@@ -151,8 +166,7 @@ class _NewSoundState extends State<NewSound> {
 
   void _recordedAudioCallback() {
     setState(() {
-      hasRecordedSound = true;
-      hasFileSound = false;
+      _soundType = SoundType.Recorded;
     });
   }
 
@@ -174,8 +188,7 @@ class _NewSoundState extends State<NewSound> {
     if (filePath != null) {
       setState(() {
         _soundFilePath = filePath;
-        hasRecordedSound = false;
-        hasFileSound = true;
+        _soundType = SoundType.File;
       });
     }
   }

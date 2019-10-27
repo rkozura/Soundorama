@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_complete_guide/model/sound_type.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_complete_guide/io/sound_file_util.dart';
 import 'package:flutter_complete_guide/widgets/new_sound.dart';
@@ -12,6 +13,13 @@ class SoundBoard extends StatefulWidget {
 }
 
 class _SoundBoardState extends State<SoundBoard> {
+  List<Map<String, String>> test = [
+    {
+      "name": "hello",
+      "soundPath": "path",
+      "imagePath": "imagePath",
+    },
+  ];
   List<PlaySoundButton> playSoundButtons = [];
 
   @override
@@ -114,28 +122,36 @@ class _SoundBoardState extends State<SoundBoard> {
     );
   }
 
-  void _addSoundCallback({@required buttonText, @required pathToSound, image}) {
+  void _addSoundCallback({
+    name,
+    soundRecordedPath,
+    soundFilePath,
+    @required SoundType soundType,
+    image,
+  }) {
     setState(() {
-      for (PlaySoundButton button in playSoundButtons) {
-        if (button.pathToSound == pathToSound) {
-          playSoundButtons.remove(button);
-          break;
-        }
-      }
+      // for (PlaySoundButton button in playSoundButtons) {
+      //   if (button.pathToSound == pathToSound) {
+      //     playSoundButtons.remove(button);
+      //     break;
+      //   }
+      // }
       playSoundButtons.add(
         PlaySoundButton(
-            buttonText: buttonText,
-            pathToSound: pathToSound,
-            deleteSoundCallback: _deleteSound,
-            editSoundCallback: _editSound,
-            imageLocation: image == null ? null : image),
+          name: name,
+          soundRecordedPath: soundRecordedPath,
+          soundFilePath: soundFilePath,
+          soundType: soundType,
+          deleteSoundCallback: _deleteSound,
+          editSoundCallback: _editSound,
+          imageLocation: image,
+        ),
       );
     });
     _hideDialogAndKeepSound();
   }
 
   void _deleteSound(PlaySoundButton playSoundButton) {
-    SoundFileUtil.deleteSoundFile(playSoundButton.pathToSound);
     setState(() {
       playSoundButtons.remove(playSoundButton);
     });
@@ -145,15 +161,21 @@ class _SoundBoardState extends State<SoundBoard> {
     showModalBottomSheet(
       builder: (_) {
         return NewSound(
-            soundFileLocation: playSoundButton.pathToSound,
-            addSoundCallback: _addSoundCallback,
-            cancelAddSoundCallback: _cancelAddSoundCallback,
-            existingSound: true,
-            name: playSoundButton.buttonText,
-            image: playSoundButton.imageLocation);
+          soundFileLocation: playSoundButton.soundRecordedPath,
+          addSoundCallback: _addSoundCallback,
+          cancelAddSoundCallback: _cancelAddSoundCallback,
+          editSoundCallback: _editSoundCallback,
+          soundType: playSoundButton.soundType,
+          name: playSoundButton.name,
+          image: playSoundButton.imageLocation,
+        );
       },
       context: context,
     );
+  }
+
+  void _editSoundCallback() {
+    print('here');
   }
 
   void _cancelAddSoundCallback() {
