@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_complete_guide/audio/recorder.dart';
 import 'package:flutter_complete_guide/audio/speaker.dart';
@@ -30,10 +31,12 @@ class NewSound extends StatefulWidget {
 class _NewSoundState extends State<NewSound> {
   final Speaker speaker = Speaker();
   final soundNameController = TextEditingController();
-  bool hasSound = false;
+  bool hasRecordedSound = false;
+  bool hasFileSound = false;
   bool isPlayingAudio = false;
   Recorder recorder;
   File _image;
+  String _soundFilePath;
 
   _NewSoundState(String name, {File image}) {
     soundNameController.text = name;
@@ -60,8 +63,9 @@ class _NewSoundState extends State<NewSound> {
                 Icons.play_arrow,
                 size: 50,
               ),
-              onPressed:
-                  hasSound || widget.existingSound ? _stopThenPlayAudio : null,
+              onPressed: hasRecordedSound || widget.existingSound || hasFileSound
+                  ? _stopThenPlayAudio
+                  : null,
             ),
           ],
         ),
@@ -76,6 +80,13 @@ class _NewSoundState extends State<NewSound> {
               ),
               onPressed: getImage,
             ),
+            IconButton(
+              icon: Icon(
+                Icons.archive,
+                size: 50,
+              ),
+              onPressed: getFile,
+            ),
           ],
         ),
         Row(
@@ -88,7 +99,9 @@ class _NewSoundState extends State<NewSound> {
                 size: 50,
               ),
               onPressed:
-                  hasSound || widget.existingSound ? _confirmSound : null,
+                  hasRecordedSound || widget.existingSound || hasFileSound
+                      ? _confirmSound
+                      : null,
             ),
             IconButton(
               color: Colors.red,
@@ -107,7 +120,7 @@ class _NewSoundState extends State<NewSound> {
   void _confirmSound() {
     widget.addSoundCallback(
         buttonText: soundNameController.text,
-        pathToSound: widget.soundFileLocation,
+        pathToSound: _getSoundPath(),
         image: _image);
   }
 
@@ -115,7 +128,8 @@ class _NewSoundState extends State<NewSound> {
     setState(() {
       isPlayingAudio = true;
     });
-    speaker.playLocalAudio(widget.soundFileLocation).then((_) {
+
+    speaker.playLocalAudio(_getSoundPath()).then((_) {
       if (this.mounted) {
         setState(() {
           isPlayingAudio = false;
@@ -124,8 +138,22 @@ class _NewSoundState extends State<NewSound> {
     });
   }
 
+  String _getSoundPath() {
+    String soundPath;
+    if (hasRecordedSound) {
+      soundPath = widget.soundFileLocation;
+    } else if (hasFileSound) {
+      soundPath = _soundFilePath;
+    }
+
+    return soundPath;
+  }
+
   void _recordedAudioCallback() {
-    setState(() => hasSound = true);
+    setState(() {
+      hasRecordedSound = true;
+      hasFileSound = false;
+    });
   }
 
   Future getImage() async {
@@ -139,5 +167,16 @@ class _NewSoundState extends State<NewSound> {
     setState(() {
       _image = image;
     });
+  }
+
+  Future getFile() async {
+    String filePath = await FilePicker.getFilePath(type: FileType.AUDIO);
+    if (filePath != null) {
+      setState(() {
+        _soundFilePath = filePath;
+        hasRecordedSound = false;
+        hasFileSound = true;
+      });
+    }
   }
 }

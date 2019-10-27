@@ -124,12 +124,11 @@ class _SoundBoardState extends State<SoundBoard> {
       }
       playSoundButtons.add(
         PlaySoundButton(
-          buttonText: buttonText,
-          pathToSound: pathToSound,
-          deleteSoundCallback: _deleteSound,
-          editSoundCallback: _editSound,
-          imageLocation: image == null ? null : image
-        ),
+            buttonText: buttonText,
+            pathToSound: pathToSound,
+            deleteSoundCallback: _deleteSound,
+            editSoundCallback: _editSound,
+            imageLocation: image == null ? null : image),
       );
     });
     _hideDialogAndKeepSound();
@@ -146,13 +145,12 @@ class _SoundBoardState extends State<SoundBoard> {
     showModalBottomSheet(
       builder: (_) {
         return NewSound(
-          soundFileLocation: playSoundButton.pathToSound,
-          addSoundCallback: _addSoundCallback,
-          cancelAddSoundCallback: _cancelAddSoundCallback,
-          existingSound: true,
-          name: playSoundButton.buttonText,
-          image: playSoundButton.imageLocation
-        );
+            soundFileLocation: playSoundButton.pathToSound,
+            addSoundCallback: _addSoundCallback,
+            cancelAddSoundCallback: _cancelAddSoundCallback,
+            existingSound: true,
+            name: playSoundButton.buttonText,
+            image: playSoundButton.imageLocation);
       },
       context: context,
     );
