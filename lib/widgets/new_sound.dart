@@ -169,12 +169,9 @@ class _NewSoundState extends State<NewSound> {
 
   @override
   void dispose() {
-    if (_soundType == SoundType.File) {
+    if (_soundType == SoundType.File ||
+        (_soundType == SoundType.Recorded) && !_confirmedSound) {
       SoundFileUtil.deleteSoundFile(_soundMicrophonePath);
-    } else if (_soundType == SoundType.Recorded) {
-      if (_originalSoundPath != _soundPath && !_confirmedSound) {
-        SoundFileUtil.deleteSoundFile(_soundMicrophonePath);
-      }
     }
     super.dispose();
   }
