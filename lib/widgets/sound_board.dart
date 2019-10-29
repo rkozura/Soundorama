@@ -162,6 +162,9 @@ class _SoundBoardState extends State<SoundBoard> {
         return element["id"] == playSoundButton.id;
       });
       if (index >= 0) {
+        if (playSoundButtons[index]["soundType"] == SoundType.Recorded.toString()) {
+          SoundFileUtil.deleteSoundFile(playSoundButtons[index]["soundPath"]);
+        }
         playSoundButtons.removeAt(index);
       }
     });
@@ -172,7 +175,7 @@ class _SoundBoardState extends State<SoundBoard> {
       builder: (_) {
         return NewSound(
           addSoundCallback: _addSoundCallback,
-          cancelAddSoundCallback: _hideDialogAndDeleteFile,
+          cancelAddSoundCallback: _hideDialog,
         );
       },
       context: context,
@@ -189,7 +192,7 @@ class _SoundBoardState extends State<SoundBoard> {
           soundType: playSoundButton.soundType,
           image: playSoundButton.imageLocation,
           addSoundCallback: _addSoundCallback,
-          cancelAddSoundCallback: _hideDialogAndDeleteFile,
+          cancelAddSoundCallback: _hideDialog,
         );
       },
       context: context,
@@ -198,10 +201,5 @@ class _SoundBoardState extends State<SoundBoard> {
 
   void _hideDialog() {
     Navigator.pop(context);
-  }
-
-  void _hideDialogAndDeleteFile(_microphonePath) {
-    SoundFileUtil.deleteSoundFile(_microphonePath);
-    _hideDialog();
   }
 }

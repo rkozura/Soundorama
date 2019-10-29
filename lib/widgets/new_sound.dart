@@ -50,7 +50,6 @@ class _NewSoundState extends State<NewSound> {
   String _soundMicrophonePath;
   String _soundPath;
   String _originalSoundPath;
-  SoundType _originalSoundType;
   bool _confirmedSound = false;
   Uuid uuid = Uuid();
 
@@ -68,7 +67,6 @@ class _NewSoundState extends State<NewSound> {
     _image = image;
 
     _originalSoundPath = soundPath;
-    _originalSoundType = soundType;
 
     createSoundMicrophonePath();
   }
@@ -144,7 +142,7 @@ class _NewSoundState extends State<NewSound> {
                       Icons.clear,
                       size: 50,
                     ),
-                    onPressed: _cancelSound,
+                    onPressed: widget.cancelAddSoundCallback,
                   ),
                 ],
               ),
@@ -190,10 +188,6 @@ class _NewSoundState extends State<NewSound> {
       soundType: _soundType,
       image: _image,
     );
-  }
-
-  void _cancelSound() {
-    widget.cancelAddSoundCallback(_soundMicrophonePath);
   }
 
   void _stopThenPlayAudio() {
