@@ -84,18 +84,6 @@ class _SoundBoardState extends State<SoundBoard> {
     }
   }
 
-  void showNewSound(BuildContext context) async {
-    showModalBottomSheet(
-      builder: (_) {
-        return NewSound(
-          addSoundCallback: _addSoundCallback,
-          cancelAddSoundCallback: _hideDialog,
-        );
-      },
-      context: context,
-    );
-  }
-
   GridView _buildGrid() {
     return GridView.builder(
       itemCount: playSoundButtons.length,
@@ -140,6 +128,12 @@ class _SoundBoardState extends State<SoundBoard> {
 
     if (index >= 0) {
       result = playSoundButtons[index];
+      if (soundType == SoundType.Recorded && result["soundPath"] != soundPath) {
+        SoundFileUtil.deleteSoundFile(result["soundPath"]);
+      } else if (soundType == SoundType.File &&
+          result["soundType"] == SoundType.Recorded.toString()) {
+        SoundFileUtil.deleteSoundFile(result["soundPath"]);
+      }
       setState(() {
         result["name"] = name;
         result["soundPath"] = soundPath;
@@ -173,6 +167,18 @@ class _SoundBoardState extends State<SoundBoard> {
     });
   }
 
+  void showNewSound(BuildContext context) async {
+    showModalBottomSheet(
+      builder: (_) {
+        return NewSound(
+          addSoundCallback: _addSoundCallback,
+          cancelAddSoundCallback: _hideDialogAndDeleteFile,
+        );
+      },
+      context: context,
+    );
+  }
+
   void _editSound(PlaySoundButton playSoundButton) {
     showModalBottomSheet(
       builder: (_) {
@@ -183,7 +189,7 @@ class _SoundBoardState extends State<SoundBoard> {
           soundType: playSoundButton.soundType,
           image: playSoundButton.imageLocation,
           addSoundCallback: _addSoundCallback,
-          cancelAddSoundCallback: _hideDialog,
+          cancelAddSoundCallback: _hideDialogAndDeleteFile,
         );
       },
       context: context,
@@ -192,5 +198,10 @@ class _SoundBoardState extends State<SoundBoard> {
 
   void _hideDialog() {
     Navigator.pop(context);
+  }
+
+  void _hideDialogAndDeleteFile(_microphonePath) {
+    SoundFileUtil.deleteSoundFile(_microphonePath);
+    _hideDialog();
   }
 }

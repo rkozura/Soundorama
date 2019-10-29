@@ -49,6 +49,9 @@ class _NewSoundState extends State<NewSound> {
   File _image;
   String _soundMicrophonePath;
   String _soundPath;
+  String _originalSoundPath;
+  SoundType _originalSoundType;
+  bool _confirmedSound = false;
   Uuid uuid = Uuid();
 
   _NewSoundState(String id, String name,
@@ -63,6 +66,9 @@ class _NewSoundState extends State<NewSound> {
     _soundPath = soundPath;
     _soundType = soundType;
     _image = image;
+
+    _originalSoundPath = soundPath;
+    _originalSoundType = soundType;
 
     createSoundMicrophonePath();
   }
@@ -138,7 +144,7 @@ class _NewSoundState extends State<NewSound> {
                       Icons.clear,
                       size: 50,
                     ),
-                    onPressed: widget.cancelAddSoundCallback,
+                    onPressed: _cancelSound,
                   ),
                 ],
               ),
@@ -163,8 +169,20 @@ class _NewSoundState extends State<NewSound> {
     return _soundType != null;
   }
 
+  @override
+  void dispose() {
+    if (_soundType == SoundType.File) {
+      SoundFileUtil.deleteSoundFile(_soundMicrophonePath);
+    } else if (_soundType == SoundType.Recorded) {
+      if (_originalSoundPath != _soundPath && !_confirmedSound) {
+        SoundFileUtil.deleteSoundFile(_soundMicrophonePath);
+      }
+    }
+    super.dispose();
+  }
+
   void _confirmSound() {
-    deleteRecordedSoundWhenFile();
+    _confirmedSound = true;
     widget.addSoundCallback(
       id: _id,
       name: soundNameController.text,
@@ -172,6 +190,10 @@ class _NewSoundState extends State<NewSound> {
       soundType: _soundType,
       image: _image,
     );
+  }
+
+  void _cancelSound() {
+    widget.cancelAddSoundCallback(_soundMicrophonePath);
   }
 
   void _stopThenPlayAudio() {
@@ -202,12 +224,6 @@ class _NewSoundState extends State<NewSound> {
         _soundType = SoundType.File;
         _soundPath = filePath;
       });
-    }
-  }
-
-  void deleteRecordedSoundWhenFile() {
-    if (_soundType == SoundType.File) {
-      SoundFileUtil.deleteSoundFile(_soundPath);
     }
   }
 }
