@@ -49,7 +49,6 @@ class _NewSoundState extends State<NewSound> {
   File _image;
   String _soundMicrophonePath;
   String _soundPath;
-  String _originalSoundPath;
   bool _confirmedSound = false;
   Uuid uuid = Uuid();
 
@@ -65,8 +64,6 @@ class _NewSoundState extends State<NewSound> {
     _soundPath = soundPath;
     _soundType = soundType;
     _image = image;
-
-    _originalSoundPath = soundPath;
 
     createSoundMicrophonePath();
   }
