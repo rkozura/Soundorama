@@ -26,7 +26,7 @@ class _SoundBoardState extends State<SoundBoard> {
       appBar: AppBar(
         title: Text(_getTitle(delete)),
         centerTitle: true,
-        actions: delete.notInMode()
+        actions: delete.notInMode() && playSoundButtons.length > 0
             ? <Widget>[
                 IconButton(
                   icon: Icon(Icons.edit),
