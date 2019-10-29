@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_complete_guide/io/sound_file_util.dart';
 import 'package:flutter_complete_guide/model/delete.dart';
 import 'package:flutter_complete_guide/model/sound_type.dart';
 import 'package:provider/provider.dart';
@@ -11,8 +10,7 @@ import '../audio/speaker.dart';
 class PlaySoundButton extends StatefulWidget {
   final String id;
   final String name;
-  final String soundRecordedPath;
-  final String soundFilePath;
+  final String soundPath;
   final Function deleteSoundCallback;
   final Function editSoundCallback;
   final File imageLocation;
@@ -21,8 +19,7 @@ class PlaySoundButton extends StatefulWidget {
   PlaySoundButton({
     this.id,
     this.name,
-    this.soundRecordedPath,
-    this.soundFilePath,
+    this.soundPath,
     this.soundType,
     this.deleteSoundCallback,
     this.editSoundCallback,
@@ -52,12 +49,6 @@ class _PlaySoundButtonState extends State<PlaySoundButton> {
     );
   }
 
-  @override
-  void dispose() {
-    SoundFileUtil.deleteSoundFile(widget.soundRecordedPath);
-    super.dispose();
-  }
-
   void _onTapped() {
     final delete = Provider.of<Delete>(context);
     if (delete.getDeleting()) {
@@ -70,14 +61,7 @@ class _PlaySoundButtonState extends State<PlaySoundButton> {
   }
 
   void _playSound() {
-    String soundPath;
-    if (widget.soundType == SoundType.File) {
-      soundPath = widget.soundRecordedPath;
-    } else {
-      soundPath = widget.soundFilePath;
-    }
-
-    speaker.stopThenPlayLocalAudio(soundPath);
+    speaker.stopThenPlayLocalAudio(widget.soundPath);
   }
 
   void _editSound() {

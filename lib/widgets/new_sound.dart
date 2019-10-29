@@ -4,180 +4,146 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_complete_guide/audio/recorder.dart';
 import 'package:flutter_complete_guide/audio/speaker.dart';
+import 'package:flutter_complete_guide/io/sound_file_util.dart';
 import 'package:flutter_complete_guide/model/sound_type.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
 import './microphone.dart';
 
 class NewSound extends StatefulWidget {
   final String id;
-  final Function addSoundCallback;
-  final Function cancelAddSoundCallback;
-  final Function editSoundCallback;
-  final String soundFileLocation;
   final String name;
+  final String soundPath;
   final File image;
   final SoundType soundType;
+  final Function addSoundCallback;
+  final Function cancelAddSoundCallback;
 
   NewSound({
     this.id,
-    this.soundFileLocation,
+    this.name = '',
+    this.soundPath,
+    this.soundType,
+    this.image,
     this.addSoundCallback,
     this.cancelAddSoundCallback,
-    this.editSoundCallback,
-    this.name = '',
-    this.image,
-    this.soundType,
   });
 
   @override
   _NewSoundState createState() => _NewSoundState(
+        id,
         name,
-        image: image,
+        soundPath: soundPath,
         soundType: soundType,
+        image: image,
       );
 }
 
 class _NewSoundState extends State<NewSound> {
+  String _id;
+  final soundNameController = TextEditingController();
   final Speaker speaker = Speaker();
   bool isPlayingAudio = false;
-  bool preExistingSound;
-  final soundNameController = TextEditingController();
   SoundType _soundType;
   Recorder recorder;
   File _image;
-  String _soundFilePath;
+  String _soundMicrophonePath;
+  String _soundPath;
+  Uuid uuid = Uuid();
 
-  _NewSoundState(String name, {File image, SoundType soundType}) {
+  _NewSoundState(String id, String name,
+      {String soundPath, SoundType soundType, File image}) {
+    if (id != null) {
+      _id = id;
+    } else {
+      _id = uuid.v4();
+    }
+
     soundNameController.text = name;
-    _image = image;
+    _soundPath = soundPath;
     _soundType = soundType;
-    preExistingSound = soundType != null;
+    _image = image;
+
+    createSoundMicrophonePath();
+  }
+
+  createSoundMicrophonePath() async {
+    String soundMicrophonePath = await SoundFileUtil.createSoundFile();
+    setState(() {
+      _soundMicrophonePath = soundMicrophonePath;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Microphone(
-            widget.soundFileLocation, _recordedAudioCallback, isPlayingAudio),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(labelText: 'Name that sound!'),
-                controller: soundNameController,
+    return _soundMicrophonePath == null
+        ? Container()
+        : Column(
+            children: <Widget>[
+              Microphone(
+                  _soundMicrophonePath, _recordedAudioCallback, isPlayingAudio),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Expanded(
+                    child: TextField(
+                      decoration:
+                          InputDecoration(labelText: 'Name that sound!'),
+                      controller: soundNameController,
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.play_arrow,
+                      size: 50,
+                    ),
+                    onPressed: hasSound() ? _stopThenPlayAudio : null,
+                  ),
+                ],
               ),
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.play_arrow,
-                size: 50,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  _image != null ? Image.file(_image) : Container(),
+                  IconButton(
+                    icon: Icon(
+                      Icons.add_a_photo,
+                      size: 50,
+                    ),
+                    onPressed: getImage,
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.archive,
+                      size: 50,
+                    ),
+                    onPressed: getFile,
+                  ),
+                ],
               ),
-              onPressed: hasSound() ? _stopThenPlayAudio : null,
-            ),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            _image != null ? Image.file(_image) : Container(),
-            IconButton(
-              icon: Icon(
-                Icons.add_a_photo,
-                size: 50,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  IconButton(
+                    color: Colors.green,
+                    icon: Icon(
+                      Icons.check,
+                      size: 50,
+                    ),
+                    onPressed: hasSound() ? _confirmSound : null,
+                  ),
+                  IconButton(
+                    color: Colors.red,
+                    icon: Icon(
+                      Icons.clear,
+                      size: 50,
+                    ),
+                    onPressed: widget.cancelAddSoundCallback,
+                  ),
+                ],
               ),
-              onPressed: getImage,
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.archive,
-                size: 50,
-              ),
-              onPressed: getFile,
-            ),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            IconButton(
-              color: Colors.green,
-              icon: Icon(
-                Icons.check,
-                size: 50,
-              ),
-              onPressed: hasSound() ? _confirmSound : null,
-            ),
-            IconButton(
-              color: Colors.red,
-              icon: Icon(
-                Icons.clear,
-                size: 50,
-              ),
-              onPressed: widget.cancelAddSoundCallback,
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  bool hasSound() {
-    return _soundType != null;
-  }
-
-  void _confirmSound() {
-    if (preExistingSound) {
-      widget.editSoundCallback(
-        id: widget.id,
-        name: soundNameController.text,
-        soundRecordedPath: _getSoundPath(),
-        soundFilePath: widget.soundFileLocation,
-        soundType: _soundType,
-        image: _image,
-      );
-    } else {
-      widget.addSoundCallback(
-        id: widget.id,
-        name: soundNameController.text,
-        soundRecordedPath: _getSoundPath(),
-        soundFilePath: widget.soundFileLocation,
-        soundType: _soundType,
-        image: _image,
-      );
-    }
-  }
-
-  void _stopThenPlayAudio() async {
-    setState(() {
-      isPlayingAudio = true;
-    });
-
-    speaker.playLocalAudio(_getSoundPath()).then((_) {
-      if (this.mounted) {
-        setState(() {
-          isPlayingAudio = false;
-        });
-      }
-    });
-  }
-
-  String _getSoundPath() {
-    String soundPath;
-    if (_soundType == SoundType.Recorded) {
-      soundPath = widget.soundFileLocation;
-    } else if (_soundType == SoundType.File) {
-      soundPath = _soundFilePath;
-    }
-
-    return soundPath;
-  }
-
-  void _recordedAudioCallback() {
-    setState(() {
-      _soundType = SoundType.Recorded;
-    });
+            ],
+          );
   }
 
   Future getImage() async {
@@ -193,13 +159,55 @@ class _NewSoundState extends State<NewSound> {
     });
   }
 
+  bool hasSound() {
+    return _soundType != null;
+  }
+
+  void _confirmSound() {
+    deleteRecordedSoundWhenFile();
+    widget.addSoundCallback(
+      id: _id,
+      name: soundNameController.text,
+      soundPath: _soundPath,
+      soundType: _soundType,
+      image: _image,
+    );
+  }
+
+  void _stopThenPlayAudio() {
+    setState(() {
+      isPlayingAudio = true;
+    });
+
+    speaker.playLocalAudio(_soundPath).then((_) {
+      if (this.mounted) {
+        setState(() {
+          isPlayingAudio = false;
+        });
+      }
+    });
+  }
+
+  void _recordedAudioCallback() {
+    setState(() {
+      _soundType = SoundType.Recorded;
+      _soundPath = _soundMicrophonePath;
+    });
+  }
+
   Future getFile() async {
     String filePath = await FilePicker.getFilePath(type: FileType.AUDIO);
     if (filePath != null) {
       setState(() {
-        _soundFilePath = filePath;
         _soundType = SoundType.File;
+        _soundPath = filePath;
       });
+    }
+  }
+
+  void deleteRecordedSoundWhenFile() {
+    if (_soundType == SoundType.File) {
+      SoundFileUtil.deleteSoundFile(_soundPath);
     }
   }
 }

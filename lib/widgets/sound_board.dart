@@ -85,24 +85,15 @@ class _SoundBoardState extends State<SoundBoard> {
   }
 
   void showNewSound(BuildContext context) async {
-    String soundFileLocation = await SoundFileUtil.createSoundFile();
-
     showModalBottomSheet(
       builder: (_) {
         return NewSound(
-          id: uuid.v4(),
-          soundFileLocation: soundFileLocation,
           addSoundCallback: _addSoundCallback,
-          cancelAddSoundCallback: _cancelAddSoundCallback,
+          cancelAddSoundCallback: _hideDialog,
         );
       },
       context: context,
-    ).then((keepSound) {
-      if ((keepSound == null || !keepSound) &&
-          SoundFileUtil.doesFileExist(soundFileLocation)) {
-        SoundFileUtil.deleteSoundFile(soundFileLocation);
-      }
-    });
+    );
   }
 
   GridView _buildGrid() {
@@ -113,8 +104,7 @@ class _SoundBoardState extends State<SoundBoard> {
           return PlaySoundButton(
             id: map["id"],
             name: map["name"],
-            soundRecordedPath: map["soundRecordedPath"],
-            soundFilePath: map["soundFilePath"],
+            soundPath: map["soundPath"],
             soundType: SoundType.values
                 .firstWhere((e) => e.toString() == map["soundType"]),
             deleteSoundCallback: _deleteSound,
@@ -136,56 +126,10 @@ class _SoundBoardState extends State<SoundBoard> {
   }
 
   void _addSoundCallback({
-    id,
-    name,
-    soundRecordedPath,
-    soundFilePath,
+    String id,
+    String name,
+    String soundPath,
     @required SoundType soundType,
-    File image,
-  }) {
-    setState(() {
-      playSoundButtons.add({
-        "id": id,
-        "name": name,
-        "soundRecordedPath": soundRecordedPath,
-        "soundFilePath": soundFilePath,
-        "soundType": soundType.toString(),
-        "imageLocation": image != null ? image.path : null
-      });
-    });
-    _hideDialogAndKeepSound();
-  }
-
-  void _deleteSound(PlaySoundButton playSoundButton) {
-    setState(() {
-      playSoundButtons.remove(playSoundButton);
-    });
-  }
-
-  void _editSound(PlaySoundButton playSoundButton) {
-    showModalBottomSheet(
-      builder: (_) {
-        return NewSound(
-          id: playSoundButton.id,
-          soundFileLocation: playSoundButton.soundRecordedPath,
-          addSoundCallback: _addSoundCallback,
-          cancelAddSoundCallback: _cancelAddSoundCallback,
-          editSoundCallback: _editSoundCallback,
-          soundType: playSoundButton.soundType,
-          name: playSoundButton.name,
-          image: playSoundButton.imageLocation,
-        );
-      },
-      context: context,
-    );
-  }
-
-  void _editSoundCallback({
-    id,
-    name,
-    soundRecordedPath,
-    soundFilePath,
-    soundType,
     File image,
   }) {
     Map<String, String> result;
@@ -198,23 +142,55 @@ class _SoundBoardState extends State<SoundBoard> {
       result = playSoundButtons[index];
       setState(() {
         result["name"] = name;
-        result["soundRecordedPath"] = soundRecordedPath;
-        result["soundFilePath"] = soundFilePath;
+        result["soundPath"] = soundPath;
         result["soundType"] = soundType.toString();
         if (image != null) {
           result["imageLocation"] = image.path;
         }
       });
+    } else {
+      setState(() {
+        playSoundButtons.add({
+          "id": id,
+          "name": name,
+          "soundPath": soundPath,
+          "soundType": soundType.toString(),
+          "imageLocation": image != null ? image.path : null
+        });
+      });
     }
-
-    _cancelAddSoundCallback();
+    _hideDialog();
   }
 
-  void _cancelAddSoundCallback() {
+  void _deleteSound(PlaySoundButton playSoundButton) {
+    setState(() {
+      int index = playSoundButtons.indexWhere((element) {
+        return element["id"] == playSoundButton.id;
+      });
+      if (index >= 0) {
+        playSoundButtons.removeAt(index);
+      }
+    });
+  }
+
+  void _editSound(PlaySoundButton playSoundButton) {
+    showModalBottomSheet(
+      builder: (_) {
+        return NewSound(
+          id: playSoundButton.id,
+          name: playSoundButton.name,
+          soundPath: playSoundButton.soundPath,
+          soundType: playSoundButton.soundType,
+          image: playSoundButton.imageLocation,
+          addSoundCallback: _addSoundCallback,
+          cancelAddSoundCallback: _hideDialog,
+        );
+      },
+      context: context,
+    );
+  }
+
+  void _hideDialog() {
     Navigator.pop(context);
-  }
-
-  void _hideDialogAndKeepSound() {
-    Navigator.pop(context, true);
   }
 }
