@@ -122,26 +122,23 @@ class _NewSoundState extends State<NewSound> {
                   ),
                 ],
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  IconButton(
+              Baseline(
+                baseline: 150,
+                baselineType: TextBaseline.alphabetic,
+                child: SizedBox(
+                  height: 70,
+                  width: 300,
+                  child: RaisedButton(
                     color: Colors.green,
-                    icon: Icon(
-                      Icons.check,
-                      size: 50,
+                    child: Text(
+                      'Create Sound',
+                      style: TextStyle(
+                        fontSize: 30,
+                      ),
                     ),
                     onPressed: hasSound() ? _confirmSound : null,
                   ),
-                  IconButton(
-                    color: Colors.red,
-                    icon: Icon(
-                      Icons.clear,
-                      size: 50,
-                    ),
-                    onPressed: widget.cancelAddSoundCallback,
-                  ),
-                ],
+                ),
               ),
             ],
           );

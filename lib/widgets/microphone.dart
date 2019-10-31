@@ -36,10 +36,18 @@ class _MicrophoneState extends State<Microphone> {
           onTapDown: (_) => _canRecordAudio() ? _startRecordAudio() : null,
           onTapUp: (_) => _endRecordAudio(),
           onTapCancel: () => _endRecordAudio(),
-          child: IconButton(
-            color: _canRecordAudio() ? Colors.green : Colors.grey,
-            icon: Icon(Icons.mic),
-            onPressed: () {},
+          child: SizedBox(
+            height: 100,
+            width: 100,
+            child: IconButton(
+              color: _canRecordAudio() ? Colors.green : Colors.grey,
+              padding: EdgeInsets.all(0),
+              icon: Icon(
+                Icons.mic,
+                size: 100
+              ),
+              onPressed: () {},
+            ),
           ),
           behavior: HitTestBehavior.translucent,
         ),
@@ -63,7 +71,8 @@ class _MicrophoneState extends State<Microphone> {
         _recordingAudio = _recorder.recordAudio().then((_) {
           setState(() {
             _isRecording = true;
-            recordingTimer = Timer(maxRecordingSeconds, () => _endRecordAudio());
+            recordingTimer =
+                Timer(maxRecordingSeconds, () => _endRecordAudio());
           });
         });
       });
