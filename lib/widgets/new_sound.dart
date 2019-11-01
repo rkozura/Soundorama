@@ -6,9 +6,9 @@ import 'package:flutter_complete_guide/audio/recorder.dart';
 import 'package:flutter_complete_guide/audio/speaker.dart';
 import 'package:flutter_complete_guide/io/sound_file_util.dart';
 import 'package:flutter_complete_guide/model/sound_type.dart';
+import 'package:flutter_complete_guide/widgets/mic_player.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
-import './microphone.dart';
 
 class NewSound extends StatefulWidget {
   final String id;
@@ -51,6 +51,7 @@ class _NewSoundState extends State<NewSound> {
   String _soundPath;
   bool _confirmedSound = false;
   Uuid uuid = Uuid();
+  String _filePath;
 
   _NewSoundState(String id, String name,
       {String soundPath, SoundType soundType, File image}) {
@@ -81,63 +82,57 @@ class _NewSoundState extends State<NewSound> {
         ? Container()
         : Column(
             children: <Widget>[
-              Microphone(
-                  _soundMicrophonePath, _recordedAudioCallback, isPlayingAudio),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  Expanded(
-                    child: TextField(
-                      decoration:
-                          InputDecoration(labelText: 'Name that sound!'),
-                      controller: soundNameController,
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.play_arrow,
-                      size: 50,
-                    ),
-                    onPressed: hasSound() ? _stopThenPlayAudio : null,
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  _image != null ? Image.file(_image) : Container(),
-                  IconButton(
-                    icon: Icon(
-                      Icons.add_a_photo,
-                      size: 50,
-                    ),
-                    onPressed: getImage,
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.archive,
-                      size: 50,
-                    ),
-                    onPressed: getFile,
-                  ),
-                ],
-              ),
-              Baseline(
-                baseline: 150,
-                baselineType: TextBaseline.alphabetic,
-                child: SizedBox(
-                  height: 70,
-                  width: 300,
-                  child: RaisedButton(
-                    color: Colors.green,
-                    child: Text(
-                      'Create Sound',
-                      style: TextStyle(
-                        fontSize: 30,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    // _image != null ? Image.file(_image) : Container(),
+                    SizedBox(
+                      height: 50,
+                      width: 50,
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.add_a_photo,
+                          size: 50,
+                        ),
+                        onPressed: getImage,
                       ),
                     ),
-                    onPressed: hasSound() ? _confirmSound : null,
+                    MicPlayer(_soundMicrophonePath, _filePath,
+                        _recordedAudioCallback),
+                    SizedBox(
+                      height: 50,
+                      width: 50,
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.unarchive,
+                          size: 50,
+                        ),
+                        onPressed: getFile,
+                      ),
+                    ),
+                  ]),
+              Expanded(
+                child: TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Name that sound!',
+                    hasFloatingPlaceholder: true,
                   ),
+                  textAlign: TextAlign.center,
+                  controller: soundNameController,
+                ),
+              ),
+              SizedBox(
+                height: 70,
+                width: 300,
+                child: RaisedButton(
+                  color: Colors.green,
+                  child: Text(
+                    'Create Sound',
+                    style: TextStyle(
+                      fontSize: 30,
+                    ),
+                  ),
+                  onPressed: hasSound() ? _confirmSound : null,
                 ),
               ),
             ],
@@ -181,24 +176,11 @@ class _NewSoundState extends State<NewSound> {
     );
   }
 
-  void _stopThenPlayAudio() {
-    setState(() {
-      isPlayingAudio = true;
-    });
-
-    speaker.playLocalAudio(_soundPath).then((_) {
-      if (this.mounted) {
-        setState(() {
-          isPlayingAudio = false;
-        });
-      }
-    });
-  }
-
   void _recordedAudioCallback() {
     setState(() {
       _soundType = SoundType.Recorded;
       _soundPath = _soundMicrophonePath;
+      _filePath = null;
     });
   }
 
@@ -207,6 +189,7 @@ class _NewSoundState extends State<NewSound> {
     if (filePath != null) {
       setState(() {
         _soundType = SoundType.File;
+        _filePath = filePath;
         _soundPath = filePath;
       });
     }

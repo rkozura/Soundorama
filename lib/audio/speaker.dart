@@ -11,6 +11,10 @@ class Speaker {
     await audioPlayer.play(localPath, isLocal: true);
   }
 
+  void stopLocalAudio(localPath) async {
+    await audioPlayer.stop();
+  }
+
   Future playLocalAudio(localPath) async {
     if (audioPlayerCompletedSubscription != null) {
       audioPlayerCompletedSubscription.cancel();
