@@ -6,7 +6,7 @@ import 'package:flutter_complete_guide/audio/recorder.dart';
 import 'package:flutter_complete_guide/audio/speaker.dart';
 import 'package:flutter_complete_guide/model/sound_type.dart';
 import 'package:flutter_complete_guide/widgets/mic_player.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter_complete_guide/widgets/photo_picker.dart';
 import 'package:uuid/uuid.dart';
 
 class NewSound extends StatefulWidget {
@@ -75,46 +75,58 @@ class _NewSoundState extends State<NewSound> {
     return Column(
       children: <Widget>[
         Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              // _image != null ? Image.file(_image) : Container(),
-              SizedBox(
-                height: 50,
-                width: 50,
-                child: IconButton(
-                  padding: EdgeInsets.all(0),
-                  icon: Icon(
-                    Icons.add_a_photo,
-                    size: 50,
-                  ),
-                  onPressed: getImage,
-                ),
-              ),
-              MicPlayer(
-                _filePath,
-                _recordedAudioCallback,
-              ),
-              SizedBox(
-                height: 50,
-                width: 50,
-                child: IconButton(
-                  padding: EdgeInsets.all(0),
-                  icon: Icon(
-                    Icons.unarchive,
-                    size: 50,
-                  ),
-                  onPressed: getFile,
-                ),
-              ),
-            ]),
-        Expanded(
-          child: TextField(
-            decoration: InputDecoration(
-              labelText: 'Name that sound!',
-              hasFloatingPlaceholder: true,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            MicPlayer(_filePath, _recordedAudioCallback),
+            Container(
+              color: Colors.black45,
+              height: 50,
+              width: 2,
             ),
-            textAlign: TextAlign.center,
-            controller: soundNameController,
+            Column(
+              children: <Widget>[
+                SizedBox(
+                  height: 100,
+                  width: 100,
+                  child: IconButton(
+                    color: Colors.deepPurple,
+                    padding: EdgeInsets.all(0),
+                    icon: Icon(Icons.unarchive, size: 100),
+                    onPressed: getFile,
+                  ),
+                ),
+                Text(
+                  'Tap for file',
+                  style: TextStyle(
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        Container(
+          padding: EdgeInsets.fromLTRB(0, 20, 0, 130),
+          child: Row(
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.fromLTRB(30, 10, 30, 10),
+                child: PhotoPicker(_image, _selectPhotoCallback),
+              ),
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(0, 0, 30, 0),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      labelText: 'Name that sound!',
+                      hasFloatingPlaceholder: true,
+                    ),
+                    textAlign: TextAlign.center,
+                    controller: soundNameController,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         SizedBox(
@@ -135,14 +147,7 @@ class _NewSoundState extends State<NewSound> {
     );
   }
 
-  Future getImage() async {
-    File image = await ImagePicker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 50,
-      maxWidth: 80,
-      maxHeight: 80,
-    );
-
+  void _selectPhotoCallback(File image) {
     setState(() {
       _image = image;
     });
