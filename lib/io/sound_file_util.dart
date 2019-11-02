@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 class SoundFileUtil {
-  static Future<String> createSoundFile() async =>
-      _getApplicationDirectory().then((Directory directory) {
-        return '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.mp4';
-      });
+  static Future<String> createSoundFile() async {
+      Directory directory = await _getApplicationDirectory();
+      return '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.mp4';
+  }
 
   static void deleteSoundFile(String pathToSound) {
     if (doesFileExist(pathToSound)) {

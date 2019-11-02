@@ -4,7 +4,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_complete_guide/audio/recorder.dart';
 import 'package:flutter_complete_guide/audio/speaker.dart';
-import 'package:flutter_complete_guide/io/sound_file_util.dart';
 import 'package:flutter_complete_guide/model/sound_type.dart';
 import 'package:flutter_complete_guide/widgets/mic_player.dart';
 import 'package:image_picker/image_picker.dart';
@@ -47,14 +46,17 @@ class _NewSoundState extends State<NewSound> {
   SoundType _soundType;
   Recorder recorder;
   File _image;
-  String _soundMicrophonePath;
   String _soundPath;
-  bool _confirmedSound = false;
   Uuid uuid = Uuid();
   String _filePath;
 
-  _NewSoundState(String id, String name,
-      {String soundPath, SoundType soundType, File image}) {
+  _NewSoundState(
+    String id,
+    String name, {
+    String soundPath,
+    SoundType soundType,
+    File image,
+  }) {
     if (id != null) {
       _id = id;
     } else {
@@ -65,78 +67,70 @@ class _NewSoundState extends State<NewSound> {
     _soundPath = soundPath;
     _soundType = soundType;
     _image = image;
-
-    createSoundMicrophonePath();
-  }
-
-  createSoundMicrophonePath() async {
-    String soundMicrophonePath = await SoundFileUtil.createSoundFile();
-    setState(() {
-      _soundMicrophonePath = soundMicrophonePath;
-    });
+    _filePath = soundPath;
   }
 
   @override
   Widget build(BuildContext context) {
-    return _soundMicrophonePath == null
-        ? Container()
-        : Column(
+    return Column(
+      children: <Widget>[
+        Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    // _image != null ? Image.file(_image) : Container(),
-                    SizedBox(
-                      height: 50,
-                      width: 50,
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.add_a_photo,
-                          size: 50,
-                        ),
-                        onPressed: getImage,
-                      ),
-                    ),
-                    MicPlayer(_soundMicrophonePath, _filePath,
-                        _recordedAudioCallback),
-                    SizedBox(
-                      height: 50,
-                      width: 50,
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.unarchive,
-                          size: 50,
-                        ),
-                        onPressed: getFile,
-                      ),
-                    ),
-                  ]),
-              Expanded(
-                child: TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Name that sound!',
-                    hasFloatingPlaceholder: true,
+              // _image != null ? Image.file(_image) : Container(),
+              SizedBox(
+                height: 50,
+                width: 50,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.add_a_photo,
+                    size: 50,
                   ),
-                  textAlign: TextAlign.center,
-                  controller: soundNameController,
+                  onPressed: getImage,
                 ),
+              ),
+              MicPlayer(
+                _filePath,
+                _recordedAudioCallback,
               ),
               SizedBox(
-                height: 70,
-                width: 300,
-                child: RaisedButton(
-                  color: Colors.green,
-                  child: Text(
-                    'Create Sound',
-                    style: TextStyle(
-                      fontSize: 30,
-                    ),
+                height: 50,
+                width: 50,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.unarchive,
+                    size: 50,
                   ),
-                  onPressed: hasSound() ? _confirmSound : null,
+                  onPressed: getFile,
                 ),
               ),
-            ],
-          );
+            ]),
+        Expanded(
+          child: TextField(
+            decoration: InputDecoration(
+              labelText: 'Name that sound!',
+              hasFloatingPlaceholder: true,
+            ),
+            textAlign: TextAlign.center,
+            controller: soundNameController,
+          ),
+        ),
+        SizedBox(
+          height: 70,
+          width: 300,
+          child: RaisedButton(
+            color: Colors.green,
+            child: Text(
+              widget.soundPath == null ? 'Create Sound' : 'Confirm Edit',
+              style: TextStyle(
+                fontSize: 30,
+              ),
+            ),
+            onPressed: hasSound() ? _confirmSound : null,
+          ),
+        ),
+      ],
+    );
   }
 
   Future getImage() async {
@@ -156,17 +150,7 @@ class _NewSoundState extends State<NewSound> {
     return _soundType != null;
   }
 
-  @override
-  void dispose() {
-    if (_soundType == SoundType.File ||
-        (_soundType == SoundType.Recorded) && !_confirmedSound) {
-      SoundFileUtil.deleteSoundFile(_soundMicrophonePath);
-    }
-    super.dispose();
-  }
-
   void _confirmSound() {
-    _confirmedSound = true;
     widget.addSoundCallback(
       id: _id,
       name: soundNameController.text,
@@ -176,10 +160,10 @@ class _NewSoundState extends State<NewSound> {
     );
   }
 
-  void _recordedAudioCallback() {
+  void _recordedAudioCallback(String soundMicrophonePath) {
     setState(() {
       _soundType = SoundType.Recorded;
-      _soundPath = _soundMicrophonePath;
+      _soundPath = soundMicrophonePath;
       _filePath = null;
     });
   }
@@ -189,8 +173,8 @@ class _NewSoundState extends State<NewSound> {
     if (filePath != null) {
       setState(() {
         _soundType = SoundType.File;
-        _filePath = filePath;
         _soundPath = filePath;
+        _filePath = filePath;
       });
     }
   }
