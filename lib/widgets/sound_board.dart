@@ -162,7 +162,8 @@ class _SoundBoardState extends State<SoundBoard> {
         return element["id"] == playSoundButton.id;
       });
       if (index >= 0) {
-        if (playSoundButtons[index]["soundType"] == SoundType.Recorded.toString()) {
+        if (playSoundButtons[index]["soundType"] ==
+            SoundType.Recorded.toString()) {
           SoundFileUtil.deleteSoundFile(playSoundButtons[index]["soundPath"]);
         }
         playSoundButtons.removeAt(index);
@@ -173,11 +174,15 @@ class _SoundBoardState extends State<SoundBoard> {
   void showNewSound(BuildContext context) async {
     showModalBottomSheet(
       builder: (_) {
-        return NewSound(
-          addSoundCallback: _addSoundCallback,
-          cancelAddSoundCallback: _hideDialog,
+        return SizedBox(
+          height: 500,
+          child: NewSound(
+            addSoundCallback: _addSoundCallback,
+            cancelAddSoundCallback: _hideDialog,
+          ),
         );
       },
+      isScrollControlled: true,
       context: context,
     );
   }
@@ -185,16 +190,20 @@ class _SoundBoardState extends State<SoundBoard> {
   void _editSound(PlaySoundButton playSoundButton) {
     showModalBottomSheet(
       builder: (_) {
-        return NewSound(
-          id: playSoundButton.id,
-          name: playSoundButton.name,
-          soundPath: playSoundButton.soundPath,
-          soundType: playSoundButton.soundType,
-          image: playSoundButton.imageLocation,
-          addSoundCallback: _addSoundCallback,
-          cancelAddSoundCallback: _hideDialog,
+        return SizedBox(
+          height: 500,
+          child: NewSound(
+            id: playSoundButton.id,
+            name: playSoundButton.name,
+            soundPath: playSoundButton.soundPath,
+            soundType: playSoundButton.soundType,
+            image: playSoundButton.imageLocation,
+            addSoundCallback: _addSoundCallback,
+            cancelAddSoundCallback: _hideDialog,
+          ),
         );
       },
+      isScrollControlled: true,
       context: context,
     );
   }
