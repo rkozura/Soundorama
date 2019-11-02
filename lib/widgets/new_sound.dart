@@ -82,6 +82,7 @@ class _NewSoundState extends State<NewSound> {
                 height: 50,
                 width: 50,
                 child: IconButton(
+                  padding: EdgeInsets.all(0),
                   icon: Icon(
                     Icons.add_a_photo,
                     size: 50,
@@ -97,6 +98,7 @@ class _NewSoundState extends State<NewSound> {
                 height: 50,
                 width: 50,
                 child: IconButton(
+                  padding: EdgeInsets.all(0),
                   icon: Icon(
                     Icons.unarchive,
                     size: 50,
