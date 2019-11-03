@@ -24,6 +24,7 @@ class _SoundBoardState extends State<SoundBoard> {
     final delete = Provider.of<Delete>(context);
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.blueGrey,
         title: Text(_getTitle(delete)),
         centerTitle: true,
         actions: delete.notInMode() && playSoundButtons.length > 0
@@ -55,7 +56,7 @@ class _SoundBoardState extends State<SoundBoard> {
     } else if (delete.getEditing()) {
       return 'Tap to edit';
     } else {
-      return 'My Sound Board';
+      return 'Soundorama';
     }
   }
 

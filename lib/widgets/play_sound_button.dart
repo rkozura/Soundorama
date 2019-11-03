@@ -40,34 +40,44 @@ class _PlaySoundButtonState extends State<PlaySoundButton> {
       child: GridTile(
         child: ConstrainedBox(
           constraints: BoxConstraints.expand(),
-          child: widget.imageLocation == null
-              ? Text(widget.name)
-              : Container(
-                  margin: EdgeInsets.all(10),
-                  alignment: Alignment.bottomCenter,
-                  child: BorderedText(
-                    widget.name,
-                  ),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.all(Radius.circular(32.0)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black,
-                        spreadRadius: .1,
-                      ),
-                      BoxShadow(
-                        color: Colors.black26,
-                        offset: Offset(10, 10),
-                        blurRadius: 5,
-                      )
-                    ],
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: FileImage(widget.imageLocation),
+          child: Container(
+            margin: EdgeInsets.all(10),
+            alignment: widget.imageLocation != null
+                ? Alignment.bottomCenter
+                : Alignment.center,
+            child: widget.imageLocation != null
+                ? BorderedText(widget.name)
+                : Container(
+                    child: Stack(
+                      children: [
+                        Center(child: BorderedText(widget.name)),
+                        Center(
+                          child: Icon(Icons.speaker,
+                              color: Colors.black12, size: 100),
+                        ),
+                      ],
                     ),
                   ),
-                ),
+            decoration: BoxDecoration(
+              shape: BoxShape.rectangle,
+              borderRadius: BorderRadius.all(Radius.circular(32.0)),
+              border: Border.all(width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  offset: Offset(10, 10),
+                  blurRadius: 5,
+                )
+              ],
+              color: Colors.white,
+              image: widget.imageLocation != null
+                  ? DecorationImage(
+                      fit: BoxFit.cover,
+                      image: FileImage(widget.imageLocation),
+                    )
+                  : null,
+            ),
+          ),
         ),
       ),
       onLongPress: _editSound,

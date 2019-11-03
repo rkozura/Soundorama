@@ -13,6 +13,7 @@ class BorderedText extends StatelessWidget {
       text,
       textAlign: TextAlign.center,
       style: TextStyle(
+        fontSize: 15,
         color: Colors.white,
         shadows: [
           Shadow(
