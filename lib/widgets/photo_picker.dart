@@ -28,18 +28,14 @@ class _PhotoPickerState extends State<PhotoPicker> {
     return SizedBox(
       height: 70,
       width: 70,
-      child: widget.photoFilePath == null && _image == null
+      child: widget.photoFilePath == null || _image == null
           ? IconButton(
               padding: EdgeInsets.all(0),
-              icon: Icon(
-                Icons.add_a_photo,
-                size: 70,
-                color: Colors.blueAccent
-              ),
-              onPressed: getImage,
+              icon: Icon(Icons.add_a_photo, size: 70, color: Colors.blueAccent),
+              onPressed: pressedPhoto,
             )
           : GestureDetector(
-              onTap: getImage,
+              onTap: pressedPhoto,
               child: Container(
                 width: 190.0,
                 height: 190.0,
@@ -55,6 +51,40 @@ class _PhotoPickerState extends State<PhotoPicker> {
               ),
             ),
     );
+  }
+
+  void pressedPhoto() async {
+    if (widget.photoFilePath == null) {
+      getImage();
+    } else {
+      return showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('New image or delete existing one?'),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('New'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  getImage();
+                },
+              ),
+              FlatButton(
+                child: Text('Remove'),
+                onPressed: () {
+                  setState(() {
+                    _image = null;
+                  });
+                  widget.selectPhotoCallback(null);
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   void getImage() async {

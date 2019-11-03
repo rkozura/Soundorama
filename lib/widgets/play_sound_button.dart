@@ -88,7 +88,7 @@ class _PlaySoundButtonState extends State<PlaySoundButton> {
   void _onTapped() {
     final delete = Provider.of<Delete>(context);
     if (delete.getDeleting()) {
-      _showDeleteConfirmationModal();
+      _showDeleteConfirmAlert();
     } else if (delete.getEditing()) {
       _editSound();
     } else {
@@ -102,10 +102,6 @@ class _PlaySoundButtonState extends State<PlaySoundButton> {
 
   void _editSound() {
     widget.editSoundCallback(widget);
-  }
-
-  void _showDeleteConfirmationModal() {
-    _showDeleteConfirmAlert();
   }
 
   Future<void> _showDeleteConfirmAlert() async {

@@ -28,7 +28,8 @@ class _SoundBoardState extends State<SoundBoard> {
           child: Image(
             image: AssetImage('images/speaker.jpg'),
             fit: BoxFit.cover,
-          ), opacity: .2,
+          ),
+          opacity: .2,
         ),
         backgroundColor: Colors.blueGrey,
         title: Text(_getTitle(delete)),
@@ -148,7 +149,9 @@ class _SoundBoardState extends State<SoundBoard> {
         result["name"] = name;
         result["soundPath"] = soundPath;
         result["soundType"] = soundType.toString();
-        if (image != null) {
+        if (image == null) {
+          result.remove("imageLocation");
+        } else {
           result["imageLocation"] = image.path;
         }
       });
