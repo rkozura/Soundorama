@@ -105,7 +105,10 @@ class _NewSoundState extends State<NewSound> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-                    MicPlayer(_filePath, _recordedAudioCallback,
+                    MicPlayer(
+                        _filePath,
+                        (soundMicrophonePath) => _recordedAudioCallback(
+                            soundMicrophonePath, buildContext),
                         () => _recordingAudioCallback(buildContext)),
                     Container(
                       color: Colors.black45,
@@ -206,7 +209,9 @@ class _NewSoundState extends State<NewSound> {
     }
   }
 
-  void _recordedAudioCallback(String soundMicrophonePath) {
+  void _recordedAudioCallback(
+      String soundMicrophonePath, BuildContext builderContext) {
+    Scaffold.of(builderContext).hideCurrentSnackBar();
     setState(() {
       isRecording = false;
       _soundType = SoundType.Recorded;
