@@ -9,10 +9,12 @@ import '../audio/recorder_flutter_sounds_adapter.dart';
 class MicPlayer extends StatefulWidget {
   final String preExistingSoundFilePath;
   final Function recordedAudioCallback;
+  final Function recordingAudioCallback;
 
   MicPlayer(
     this.preExistingSoundFilePath,
     this.recordedAudioCallback,
+    this.recordingAudioCallback,
   );
 
   @override
@@ -131,6 +133,7 @@ class _MicPlayerState extends State<MicPlayer> with TickerProviderStateMixin {
   _startRecordAudio() {
     setState(() {
       _recordingAudio = _recorder.recordAudio().then((_) {
+        widget.recordingAudioCallback();
         setState(() {
           recordingTimer = Timer(maxRecordingSeconds, () => _endRecordAudio());
         });

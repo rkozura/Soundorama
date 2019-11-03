@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_complete_guide/audio/recorder.dart';
 import 'package:flutter_complete_guide/audio/speaker.dart';
 import 'package:flutter_complete_guide/model/sound_type.dart';
 import 'package:flutter_complete_guide/widgets/mic_player.dart';
@@ -44,11 +43,11 @@ class _NewSoundState extends State<NewSound> {
   final Speaker speaker = Speaker();
   bool isPlayingAudio = false;
   SoundType _soundType;
-  Recorder recorder;
   File _image;
   String _soundPath;
   Uuid uuid = Uuid();
   String _filePath;
+  bool isRecording = false;
 
   _NewSoundState(
     String id,
@@ -73,6 +72,7 @@ class _NewSoundState extends State<NewSound> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: isRecording ? Color.fromRGBO(245, 121, 121, 1) : null,
       body: SingleChildScrollView(
         child: Builder(
           builder: (buildContext) {
@@ -105,7 +105,8 @@ class _NewSoundState extends State<NewSound> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-                    MicPlayer(_filePath, _recordedAudioCallback),
+                    MicPlayer(_filePath, _recordedAudioCallback,
+                        () => _recordingAudioCallback(buildContext)),
                     Container(
                       color: Colors.black45,
                       height: 50,
@@ -133,21 +134,24 @@ class _NewSoundState extends State<NewSound> {
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: 70,
-                  width: 300,
-                  child: RaisedButton(
-                    color: Colors.green,
-                    child: Text(
-                      widget.soundPath == null
-                          ? 'Create Sound'
-                          : 'Confirm Edit',
-                      style: TextStyle(
-                        fontSize: 30,
+                Container(
+                  padding: EdgeInsets.fromLTRB(0, 80, 0, 0),
+                  child: SizedBox(
+                    height: 70,
+                    width: 300,
+                    child: RaisedButton(
+                      color: Colors.green,
+                      child: Text(
+                        widget.soundPath == null
+                            ? 'Create Sound'
+                            : 'Confirm Edit',
+                        style: TextStyle(
+                          fontSize: 30,
+                        ),
                       ),
+                      onPressed:
+                          hasSound() ? () => _confirmSound(buildContext) : null,
                     ),
-                    onPressed:
-                        hasSound() ? () => _confirmSound(buildContext) : null,
                   ),
                 ),
               ],
@@ -168,11 +172,27 @@ class _NewSoundState extends State<NewSound> {
     return _soundType != null;
   }
 
+  void _recordingAudioCallback(builderContext) {
+    setState(() {
+      isRecording = true;
+    });
+    Scaffold.of(builderContext).hideCurrentSnackBar();
+    Scaffold.of(builderContext).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Recording...',
+          style: TextStyle(color: Colors.red),
+        ),
+      ),
+    );
+  }
+
   void _confirmSound(BuildContext builderContext) {
     if (soundNameController.text == '' && _image == null) {
+      Scaffold.of(builderContext).hideCurrentSnackBar();
       Scaffold.of(builderContext).showSnackBar(
         SnackBar(
-          content: Text('Pick an image and/or name your sound!'),
+          content: Text('Pick an image or name your sound!'),
         ),
       );
     } else {
@@ -188,6 +208,7 @@ class _NewSoundState extends State<NewSound> {
 
   void _recordedAudioCallback(String soundMicrophonePath) {
     setState(() {
+      isRecording = false;
       _soundType = SoundType.Recorded;
       _soundPath = soundMicrophonePath;
       _filePath = null;
