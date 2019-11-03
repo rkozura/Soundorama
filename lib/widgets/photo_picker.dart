@@ -60,8 +60,7 @@ class _PhotoPickerState extends State<PhotoPicker> {
   void getImage() async {
     File image = await ImagePicker.pickImage(
       source: ImageSource.gallery,
-      maxWidth: 100,
-      maxHeight: 100,
+      imageQuality: 70,
     );
 
     if (image != null) {

@@ -103,8 +103,14 @@ class _PlaySoundButtonState extends State<PlaySoundButton> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        String alertTextName;
+        if (widget.name == '') {
+          alertTextName = 'Untitled';
+        } else {
+          alertTextName = widget.name;
+        }
         return AlertDialog(
-          title: Text('Delete "${widget.name}"?'),
+          title: Text('Delete "$alertTextName"?'),
           actions: <Widget>[
             FlatButton(
               child: Text('Yes'),

@@ -86,7 +86,7 @@ class _SoundBoardState extends State<SoundBoard> {
 
   Container _buildGrid() {
     return Container(
-      color: Colors.transparent,
+      padding: EdgeInsets.only(bottom: 80),
       child: GridView.builder(
         itemCount: playSoundButtons.length,
         itemBuilder: (context, position) {
