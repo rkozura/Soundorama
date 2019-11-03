@@ -122,9 +122,11 @@ class _MicPlayerState extends State<MicPlayer> with TickerProviderStateMixin {
         }
         speaker.playLocalAudio(fileLocation).then((_) {
           _animationController.reverse();
-          setState(() {
-            _isPlaying = false;
-          });
+          if (mounted) {
+            setState(() {
+              _isPlaying = false;
+            });
+          }
         });
       }
     }
