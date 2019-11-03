@@ -6,6 +6,7 @@ import 'package:flutter_complete_guide/model/sound_type.dart';
 import 'package:provider/provider.dart';
 
 import '../audio/speaker.dart';
+import 'bordered_text.dart';
 
 class PlaySoundButton extends StatefulWidget {
   final String id;
@@ -41,7 +42,32 @@ class _PlaySoundButtonState extends State<PlaySoundButton> {
           constraints: BoxConstraints.expand(),
           child: widget.imageLocation == null
               ? Text(widget.name)
-              : Image.file(widget.imageLocation),
+              : Container(
+                  margin: EdgeInsets.all(10),
+                  alignment: Alignment.bottomCenter,
+                  child: BorderedText(
+                    widget.name,
+                  ),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.all(Radius.circular(32.0)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black,
+                        spreadRadius: .1,
+                      ),
+                      BoxShadow(
+                        color: Colors.black26,
+                        offset: Offset(10, 10),
+                        blurRadius: 5,
+                      )
+                    ],
+                    image: DecorationImage(
+                      fit: BoxFit.cover,
+                      image: FileImage(widget.imageLocation),
+                    ),
+                  ),
+                ),
         ),
       ),
       onLongPress: _editSound,

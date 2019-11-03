@@ -84,31 +84,34 @@ class _SoundBoardState extends State<SoundBoard> {
     }
   }
 
-  GridView _buildGrid() {
-    return GridView.builder(
-      itemCount: playSoundButtons.length,
-      itemBuilder: (context, position) {
-        List<PlaySoundButton> buttons = playSoundButtons.map((map) {
-          return PlaySoundButton(
-            id: map["id"],
-            name: map["name"],
-            soundPath: map["soundPath"],
-            soundType: SoundType.values
-                .firstWhere((e) => e.toString() == map["soundType"]),
-            deleteSoundCallback: _deleteSound,
-            editSoundCallback: _editSound,
-            imageLocation: map["imageLocation"] != null
-                ? File(map["imageLocation"])
-                : null,
-          );
-        }).toList();
-        return buttons[position];
-      },
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: 3 / 2,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
+  Container _buildGrid() {
+    return Container(
+      color: Colors.transparent,
+      child: GridView.builder(
+        itemCount: playSoundButtons.length,
+        itemBuilder: (context, position) {
+          List<PlaySoundButton> buttons = playSoundButtons.map((map) {
+            return PlaySoundButton(
+              id: map["id"],
+              name: map["name"],
+              soundPath: map["soundPath"],
+              soundType: SoundType.values
+                  .firstWhere((e) => e.toString() == map["soundType"]),
+              deleteSoundCallback: _deleteSound,
+              editSoundCallback: _editSound,
+              imageLocation: map["imageLocation"] != null
+                  ? File(map["imageLocation"])
+                  : null,
+            );
+          }).toList();
+          return buttons[position];
+        },
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          childAspectRatio: 3 / 3,
+          crossAxisSpacing: 0,
+          mainAxisSpacing: 0,
+        ),
       ),
     );
   }
