@@ -24,6 +24,12 @@ class _SoundBoardState extends State<SoundBoard> {
     final delete = Provider.of<Delete>(context);
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: Opacity(
+          child: Image(
+            image: AssetImage('images/speaker.jpg'),
+            fit: BoxFit.cover,
+          ), opacity: .2,
+        ),
         backgroundColor: Colors.blueGrey,
         title: Text(_getTitle(delete)),
         centerTitle: true,
