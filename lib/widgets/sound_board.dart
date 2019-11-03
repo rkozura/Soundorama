@@ -174,15 +174,11 @@ class _SoundBoardState extends State<SoundBoard> {
   void showNewSound(BuildContext context) async {
     showModalBottomSheet(
       builder: (_) {
-        return SizedBox(
-          height: 500,
-          child: NewSound(
-            addSoundCallback: _addSoundCallback,
-            cancelAddSoundCallback: _hideDialog,
-          ),
+        return NewSound(
+          addSoundCallback: _addSoundCallback,
+          cancelAddSoundCallback: _hideDialog,
         );
       },
-      isScrollControlled: true,
       context: context,
     );
   }
@@ -190,20 +186,16 @@ class _SoundBoardState extends State<SoundBoard> {
   void _editSound(PlaySoundButton playSoundButton) {
     showModalBottomSheet(
       builder: (_) {
-        return SizedBox(
-          height: 500,
-          child: NewSound(
-            id: playSoundButton.id,
-            name: playSoundButton.name,
-            soundPath: playSoundButton.soundPath,
-            soundType: playSoundButton.soundType,
-            image: playSoundButton.imageLocation,
-            addSoundCallback: _addSoundCallback,
-            cancelAddSoundCallback: _hideDialog,
-          ),
+        return NewSound(
+          id: playSoundButton.id,
+          name: playSoundButton.name,
+          soundPath: playSoundButton.soundPath,
+          soundType: playSoundButton.soundType,
+          image: playSoundButton.imageLocation,
+          addSoundCallback: _addSoundCallback,
+          cancelAddSoundCallback: _hideDialog,
         );
       },
-      isScrollControlled: true,
       context: context,
     );
   }

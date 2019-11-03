@@ -72,78 +72,85 @@ class _NewSoundState extends State<NewSound> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            MicPlayer(_filePath, _recordedAudioCallback),
-            Container(
-              color: Colors.black45,
-              height: 50,
-              width: 2,
-            ),
-            Column(
-              children: <Widget>[
-                SizedBox(
-                  height: 100,
-                  width: 100,
-                  child: IconButton(
-                    color: Colors.deepPurple,
-                    padding: EdgeInsets.all(0),
-                    icon: Icon(Icons.unarchive, size: 100),
-                    onPressed: getFile,
-                  ),
-                ),
-                Text(
-                  'Tap for file',
-                  style: TextStyle(
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        Container(
-          padding: EdgeInsets.fromLTRB(0, 20, 0, 130),
-          child: Row(
+    return Scaffold(
+      body: Builder(
+        builder: (buildContext) {
+          return Column(
             children: <Widget>[
               Container(
-                padding: EdgeInsets.fromLTRB(30, 10, 30, 10),
-                child: PhotoPicker(_image, _selectPhotoCallback),
-              ),
-              Expanded(
-                child: Container(
-                  padding: EdgeInsets.fromLTRB(0, 0, 30, 0),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Name that sound!',
-                      hasFloatingPlaceholder: true,
+                padding: EdgeInsets.fromLTRB(0, 5, 0, 10),
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                      padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
+                      child: PhotoPicker(_image, _selectPhotoCallback),
                     ),
-                    textAlign: TextAlign.center,
-                    controller: soundNameController,
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.fromLTRB(0, 0, 30, 0),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            labelText: 'Name that sound!',
+                            hasFloatingPlaceholder: true,
+                          ),
+                          textAlign: TextAlign.center,
+                          controller: soundNameController,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  MicPlayer(_filePath, _recordedAudioCallback),
+                  Container(
+                    color: Colors.black45,
+                    height: 50,
+                    width: 2,
                   ),
+                  Column(
+                    children: <Widget>[
+                      SizedBox(
+                        height: 100,
+                        width: 100,
+                        child: IconButton(
+                          color: Colors.deepPurple,
+                          padding: EdgeInsets.all(0),
+                          icon: Icon(Icons.unarchive, size: 100),
+                          onPressed: getFile,
+                        ),
+                      ),
+                      Text(
+                        'Tap for file',
+                        style: TextStyle(
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 70,
+                width: 300,
+                child: RaisedButton(
+                  color: Colors.green,
+                  child: Text(
+                    widget.soundPath == null ? 'Create Sound' : 'Confirm Edit',
+                    style: TextStyle(
+                      fontSize: 30,
+                    ),
+                  ),
+                  onPressed:
+                      hasSound() ? () => _confirmSound(buildContext) : null,
                 ),
               ),
             ],
-          ),
-        ),
-        SizedBox(
-          height: 70,
-          width: 300,
-          child: RaisedButton(
-            color: Colors.green,
-            child: Text(
-              widget.soundPath == null ? 'Create Sound' : 'Confirm Edit',
-              style: TextStyle(
-                fontSize: 30,
-              ),
-            ),
-            onPressed: hasSound() ? _confirmSound : null,
-          ),
-        ),
-      ],
+          );
+        },
+      ),
     );
   }
 
@@ -157,14 +164,22 @@ class _NewSoundState extends State<NewSound> {
     return _soundType != null;
   }
 
-  void _confirmSound() {
-    widget.addSoundCallback(
-      id: _id,
-      name: soundNameController.text,
-      soundPath: _soundPath,
-      soundType: _soundType,
-      image: _image,
-    );
+  void _confirmSound(BuildContext builderContext) {
+    if (soundNameController.text == '' && _image == null) {
+      Scaffold.of(builderContext).showSnackBar(
+        SnackBar(
+          content: Text('Pick an image and/or name your sound!'),
+        ),
+      );
+    } else {
+      widget.addSoundCallback(
+        id: _id,
+        name: soundNameController.text,
+        soundPath: _soundPath,
+        soundType: _soundType,
+        image: _image,
+      );
+    }
   }
 
   void _recordedAudioCallback(String soundMicrophonePath) {
