@@ -64,7 +64,9 @@ class _PlaySoundButtonState extends State<PlaySoundButton> {
             decoration: BoxDecoration(
               shape: BoxShape.rectangle,
               borderRadius: BorderRadius.all(Radius.circular(32.0)),
-              border: Border.all(width: 1, color: _playingSound ? getRandomColor() : Colors.black),
+              border: Border.all(
+                  width: 1,
+                  color: _playingSound ? getRandomColor() : Colors.black),
               boxShadow: [
                 BoxShadow(
                   color: _playingSound ? getRandomColor() : Colors.black26,
@@ -108,9 +110,11 @@ class _PlaySoundButtonState extends State<PlaySoundButton> {
       _playingSound = true;
     });
     speaker.stopThenPlayLocalAudio(widget.soundPath).then((_) {
-      setState(() {
-        _playingSound = false;
-      });
+      if (mounted) {
+        setState(() {
+          _playingSound = false;
+        });
+      }
     });
   }
 

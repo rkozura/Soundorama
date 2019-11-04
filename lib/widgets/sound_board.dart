@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_complete_guide/model/sound_type.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_complete_guide/io/sound_file_util.dart';
 import 'package:flutter_complete_guide/widgets/new_sound.dart';
@@ -18,6 +20,12 @@ class SoundBoard extends StatefulWidget {
 class _SoundBoardState extends State<SoundBoard> {
   List<Map<String, String>> playSoundButtons = [];
   var uuid = Uuid();
+
+  @override
+  void initState() {
+    _read();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -166,6 +174,7 @@ class _SoundBoardState extends State<SoundBoard> {
         });
       });
     }
+    _save();
     _hideDialog();
   }
 
@@ -215,5 +224,34 @@ class _SoundBoardState extends State<SoundBoard> {
 
   void _hideDialog() {
     Navigator.pop(context);
+  }
+
+  _read() async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final file = File('${directory.path}/my_saved_sounboard.txt');
+      List<dynamic> data = jsonDecode(await file.readAsString());
+      List<Map<String, dynamic>> s =
+          data.map((element) => element as Map<String, dynamic>).toList();
+      List<Map<String, String>> e = s.map((map) {
+        return map.map((key, value) {
+          return MapEntry(key, value as String);
+        });
+      }).toList();
+      setState(() {
+        playSoundButtons = e;
+      });
+    } catch (e) {
+      print("Couldn't read file");
+    }
+  }
+
+  _save() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File('${directory.path}/my_saved_sounboard.txt');
+    final text = jsonEncode(playSoundButtons);
+    print(text);
+    await file.writeAsString(text);
+    print('saved');
   }
 }
