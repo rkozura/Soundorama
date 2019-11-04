@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_complete_guide/model/delete.dart';
@@ -33,6 +34,8 @@ class PlaySoundButton extends StatefulWidget {
 
 class _PlaySoundButtonState extends State<PlaySoundButton> {
   Speaker speaker = Speaker();
+  bool _playingSound = false;
+  Random random = Random();
 
   @override
   Widget build(BuildContext context) {
@@ -61,10 +64,10 @@ class _PlaySoundButtonState extends State<PlaySoundButton> {
             decoration: BoxDecoration(
               shape: BoxShape.rectangle,
               borderRadius: BorderRadius.all(Radius.circular(32.0)),
-              border: Border.all(width: 1),
+              border: Border.all(width: 1, color: _playingSound ? getRandomColor() : Colors.black),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black26,
+                  color: _playingSound ? getRandomColor() : Colors.black26,
                   offset: Offset(10, 10),
                   blurRadius: 5,
                 )
@@ -85,6 +88,10 @@ class _PlaySoundButtonState extends State<PlaySoundButton> {
     );
   }
 
+  Color getRandomColor() {
+    return Color((random.nextDouble() * 0xFFFFFF).toInt()).withOpacity(1.0);
+  }
+
   void _onTapped() {
     final delete = Provider.of<Delete>(context);
     if (delete.getDeleting()) {
@@ -97,7 +104,14 @@ class _PlaySoundButtonState extends State<PlaySoundButton> {
   }
 
   void _playSound() {
-    speaker.stopThenPlayLocalAudio(widget.soundPath);
+    setState(() {
+      _playingSound = true;
+    });
+    speaker.stopThenPlayLocalAudio(widget.soundPath).then((_) {
+      setState(() {
+        _playingSound = false;
+      });
+    });
   }
 
   void _editSound() {

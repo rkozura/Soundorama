@@ -6,9 +6,9 @@ class Speaker {
   StreamSubscription audioPlayerCompletedSubscription;
   AudioPlayer audioPlayer = AudioPlayer();
 
-  void stopThenPlayLocalAudio(localPath) async {
+  Future stopThenPlayLocalAudio(localPath) async {
     await audioPlayer.stop();
-    await audioPlayer.play(localPath, isLocal: true);
+    return playLocalAudio(localPath);
   }
 
   void stopLocalAudio(localPath) async {
