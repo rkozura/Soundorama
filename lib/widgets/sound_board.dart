@@ -191,6 +191,7 @@ class _SoundBoardState extends State<SoundBoard> {
         playSoundButtons.removeAt(index);
       }
     });
+    _save();
   }
 
   void showNewSound(BuildContext context) async {
