@@ -60,9 +60,37 @@ class _SoundBoardState extends State<SoundBoard> {
             : [],
       ),
       floatingActionButton: _getFAB(delete),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: _buildGrid(),
+      bottomNavigationBar: Container(
+        child: BottomAppBar(
+          shape: CircularNotchedRectangle(),
+          clipBehavior: Clip.antiAlias,
+          child: BottomNavigationBar(
+            unselectedItemColor: Colors.blueAccent,
+            onTap: (index) => _onTapped(index, delete),
+            items: [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.edit),
+                title: Text("Edit"),
+              ),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.add), title: Text("Add")),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.cancel), title: Text("Delete")),
+            ],
+          ),
+        ),
+      ),
     );
+  }
+
+  _onTapped(int index, delete) {
+    if (index == 0) {
+      delete.toggleEditingMode();
+    } else if (index == 2) {
+      delete.toggleDeleteMode();
+    }
   }
 
   String _getTitle(Delete delete) {
@@ -100,34 +128,34 @@ class _SoundBoardState extends State<SoundBoard> {
     }
   }
 
-  Container _buildGrid() {
-    return Container(
-      padding: EdgeInsets.only(bottom: 80),
-      child: GridView.builder(
-        itemCount: playSoundButtons.length,
-        itemBuilder: (context, position) {
-          List<PlaySoundButton> buttons = playSoundButtons.map((map) {
-            return PlaySoundButton(
-              id: map["id"],
-              name: map["name"],
-              soundPath: map["soundPath"],
-              soundType: SoundType.values
-                  .firstWhere((e) => e.toString() == map["soundType"]),
-              deleteSoundCallback: _deleteSound,
-              editSoundCallback: _editSound,
-              imageLocation: map["imageLocation"] != null
-                  ? File(map["imageLocation"])
-                  : null,
-            );
-          }).toList();
+  GridView _buildGrid() {
+    List<PlaySoundButton> buttons = playSoundButtons.map((map) {
+      return PlaySoundButton(
+        id: map["id"],
+        name: map["name"],
+        soundPath: map["soundPath"],
+        soundType: SoundType.values
+            .firstWhere((e) => e.toString() == map["soundType"]),
+        deleteSoundCallback: _deleteSound,
+        editSoundCallback: _editSound,
+        imageLocation:
+            map["imageLocation"] != null ? File(map["imageLocation"]) : null,
+      );
+    }).toList();
+    return GridView.builder(
+      itemCount: playSoundButtons.length + 3,
+      itemBuilder: (context, position) {
+        if (position < playSoundButtons.length) {
           return buttons[position];
-        },
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          childAspectRatio: 3 / 3,
-          crossAxisSpacing: 0,
-          mainAxisSpacing: 0,
-        ),
+        } else {
+          return Container();
+        }
+      },
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        childAspectRatio: 1,
+        crossAxisSpacing: 0,
+        mainAxisSpacing: 0,
       ),
     );
   }
